@@ -7,6 +7,31 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-NDZZW3Z2');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Meta Pixel -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '5825947457461730');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=5825947457461730&ev=PageView&noscript=1"/></noscript>
+  <!-- End Meta Pixel -->
+
   <style>
     :root {
       --premium-bg-primary: #0A0A0A;
@@ -577,6 +602,10 @@
   </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDZZW3Z2"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
   <!-- Grain -->
   <div class="grain"></div>
@@ -871,9 +900,31 @@
       }, 500);
     }
 
+    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby1Wr9PNK3vrStRAdMmQ_W385exaoW9UWZduKAUjZ__NVcn9YxZlWARdRD2R4orrZgK/exec';
+
+    function getPartialData() {
+      const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
+      return {
+        nome: document.getElementById('field-nome').value.trim(),
+        email: document.getElementById('field-email').value.trim(),
+        whatsapp: document.getElementById('field-whatsapp').value.trim(),
+        especialidade: document.getElementById('field-especialidade').value.trim(),
+        instagram: document.getElementById('field-instagram').value.trim(),
+        faturamento: faturamentoRadio ? faturamentoRadio.nextElementSibling.nextElementSibling.textContent.trim() : '',
+        motivacao: document.getElementById('field-motivacao').value.trim(),
+        etapa: currentStep.toString(),
+        finalizado: 'NAO'
+      };
+    }
+
+    function savePartial() {
+      const data = getPartialData();
+      if (!data.nome && !data.email && !data.whatsapp) return;
+      fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+    }
+
     function nextStep(from) {
       if (validators[from] && !validators[from]()) {
-        // Shake the input
         const input = document.querySelector(`[data-step="${from}"] input, [data-step="${from}"] textarea`);
         if (input) {
           input.style.borderBottomColor = '#EF4444';
@@ -881,6 +932,7 @@
         }
         return;
       }
+      savePartial();
       goToStep(from + 1);
     }
 
@@ -890,6 +942,7 @@
       radioTransitioning = true;
       const radio = label.querySelector('input[type="radio"]');
       radio.checked = true;
+      savePartial();
       setTimeout(() => {
         goToStep(step + 1);
         radioTransitioning = false;
@@ -912,24 +965,10 @@
         return;
       }
 
-      // Collect form data
-      const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
-      const payload = {
-        nome: document.getElementById('field-nome').value.trim(),
-        email: document.getElementById('field-email').value.trim(),
-        whatsapp: document.getElementById('field-whatsapp').value.trim(),
-        especialidade: document.getElementById('field-especialidade').value.trim(),
-        instagram: document.getElementById('field-instagram').value.trim(),
-        faturamento: faturamentoRadio ? faturamentoRadio.nextElementSibling.nextElementSibling.textContent.trim() : '',
-        motivacao: document.getElementById('field-motivacao').value.trim()
-      };
-
-      // Send to Google Sheets
-      fetch('https://script.google.com/macros/s/AKfycby1Wr9PNK3vrStRAdMmQ_W385exaoW9UWZduKAUjZ__NVcn9YxZlWARdRD2R4orrZgK/exec', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: new URLSearchParams(payload)
-      });
+      const data = getPartialData();
+      data.etapa = '7';
+      data.finalizado = 'SIM';
+      fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
 
       goToStep(8);
     }
