@@ -911,6 +911,27 @@
         setTimeout(() => { ta.style.borderBottomColor = ''; }, 1200);
         return;
       }
+
+      // Collect form data
+      const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
+      const payload = {
+        nome: document.getElementById('field-nome').value.trim(),
+        email: document.getElementById('field-email').value.trim(),
+        whatsapp: document.getElementById('field-whatsapp').value.trim(),
+        especialidade: document.getElementById('field-especialidade').value.trim(),
+        instagram: document.getElementById('field-instagram').value.trim(),
+        faturamento: faturamentoRadio ? faturamentoRadio.nextElementSibling.nextElementSibling.textContent.trim() : '',
+        motivacao: document.getElementById('field-motivacao').value.trim()
+      };
+
+      // Send to Google Sheets
+      fetch('https://script.google.com/macros/s/AKfycbyNRtd2CmRQQDdnCBuNSz6o6KXZCD6PFkaUqNhFWmvolX3bjySmSDWUchV697ZALp5C/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
       goToStep(8);
     }
 
