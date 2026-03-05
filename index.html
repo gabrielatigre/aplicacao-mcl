@@ -901,10 +901,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby1Wr9PNK3vrStRAdMmQ_W385exaoW9UWZduKAUjZ__NVcn9YxZlWARdRD2R4orrZgK/exec';
+    const SESSION_ID = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
     function getPartialData() {
       const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
       return {
+        sid: SESSION_ID,
         nome: document.getElementById('field-nome').value.trim(),
         email: document.getElementById('field-email').value.trim(),
         whatsapp: document.getElementById('field-whatsapp').value.trim(),
@@ -966,7 +968,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }
 
       const data = getPartialData();
-      data.etapa = '7';
+      data.etapa = 'completo';
       data.finalizado = 'SIM';
       fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
 
