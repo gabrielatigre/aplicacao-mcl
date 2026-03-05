@@ -606,6 +606,7 @@
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NDZZW3Z2"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+<iframe name="hidden-submit" style="display:none"></iframe>
 
   <!-- Grain -->
   <div class="grain"></div>
@@ -919,10 +920,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       };
     }
 
+    function sendToSheets(data) {
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = SHEETS_URL;
+      form.target = 'hidden-submit';
+      for (var key in data) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = data[key];
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
+
     function savePartial() {
       const data = getPartialData();
       if (!data.nome && !data.email && !data.whatsapp) return;
-      fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+      sendToSheets(data);
     }
 
     function nextStep(from) {
@@ -970,7 +988,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       const data = getPartialData();
       data.etapa = 'completo';
       data.finalizado = 'SIM';
-      fetch(SHEETS_URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(data) });
+      sendToSheets(data);
 
       goToStep(8);
     }
