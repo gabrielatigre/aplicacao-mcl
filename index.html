@@ -901,48 +901,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       }, 500);
     }
 
-    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby0DhX2qrdnrrb6rf8ukj5b9Zlkf5XYV-xQ7LfpytGGB_tX1DlyBqX-ShnxLR8InCwd/exec';
-    const SESSION_ID = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-
-    function getPartialData() {
-      const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
-      return {
-        sid: SESSION_ID,
-        nome: document.getElementById('field-nome').value.trim(),
-        email: document.getElementById('field-email').value.trim(),
-        whatsapp: document.getElementById('field-whatsapp').value.trim(),
-        especialidade: document.getElementById('field-especialidade').value.trim(),
-        instagram: document.getElementById('field-instagram').value.trim(),
-        faturamento: faturamentoRadio ? faturamentoRadio.nextElementSibling.nextElementSibling.textContent.trim() : '',
-        motivacao: document.getElementById('field-motivacao').value.trim(),
-        etapa: currentStep.toString(),
-        finalizado: 'NAO'
-      };
-    }
-
-    function sendToSheets(data) {
-      var form = document.createElement('form');
-      form.method = 'GET';
-      form.action = SHEETS_URL;
-      form.target = 'hidden-submit';
-      for (var key in data) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = data[key];
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
-      form.remove();
-    }
-
-    function savePartial() {
-      const data = getPartialData();
-      if (!data.nome && !data.email && !data.whatsapp) return;
-      sendToSheets(data);
-    }
-
     function nextStep(from) {
       if (validators[from] && !validators[from]()) {
         const input = document.querySelector(`[data-step="${from}"] input, [data-step="${from}"] textarea`);
@@ -952,7 +910,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         return;
       }
-      savePartial();
       goToStep(from + 1);
     }
 
@@ -962,7 +919,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       radioTransitioning = true;
       const radio = label.querySelector('input[type="radio"]');
       radio.checked = true;
-      savePartial();
       setTimeout(() => {
         goToStep(step + 1);
         radioTransitioning = false;
@@ -985,10 +941,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         return;
       }
 
-      const data = getPartialData();
-      data.etapa = 'completo';
-      data.finalizado = 'SIM';
-      sendToSheets(data);
+      const faturamentoRadio = document.querySelector('input[name="faturamento"]:checked');
+      const payload = {
+        nome: document.getElementById('field-nome').value.trim(),
+        email: document.getElementById('field-email').value.trim(),
+        whatsapp: document.getElementById('field-whatsapp').value.trim(),
+        especialidade: document.getElementById('field-especialidade').value.trim(),
+        instagram: document.getElementById('field-instagram').value.trim(),
+        faturamento: faturamentoRadio ? faturamentoRadio.nextElementSibling.nextElementSibling.textContent.trim() : '',
+        motivacao: document.getElementById('field-motivacao').value.trim()
+      };
+
+      fetch('https://script.google.com/macros/s/AKfycbzAsqOjP4UiZDxDkFeLrcTJbLMqKP2Dnmw76ZSD2fsrlM4HDx3jsMxdQS-XK3X8sjTT/exec', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: new URLSearchParams(payload)
+      });
 
       goToStep(8);
     }
