@@ -922,11 +922,20 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     function sendToSheets(data) {
       var params = new URLSearchParams(data).toString();
+      var url = SHEETS_URL + '?' + params;
+
+      // Método 1: fetch GET
+      fetch(url, { mode: 'no-cors' }).catch(function(){});
+
+      // Método 2: Image beacon
+      new Image().src = url;
+
+      // Método 3: iframe
       var iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = SHEETS_URL + '?' + params;
+      iframe.src = url;
       document.body.appendChild(iframe);
-      setTimeout(function() { document.body.removeChild(iframe); }, 5000);
+      setTimeout(function() { iframe.remove(); }, 8000);
     }
 
     function savePartial() {
