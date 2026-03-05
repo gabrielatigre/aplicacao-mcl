@@ -921,20 +921,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     function sendToSheets(data) {
-      var form = document.createElement('form');
-      form.method = 'POST';
-      form.action = SHEETS_URL;
-      form.target = 'hidden-submit';
-      for (var key in data) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = data[key];
-        form.appendChild(input);
-      }
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
+      var params = new URLSearchParams(data).toString();
+      var img = new Image();
+      img.src = SHEETS_URL + '?' + params;
     }
 
     function savePartial() {
