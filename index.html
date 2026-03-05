@@ -928,8 +928,7 @@
       fetch('https://script.google.com/macros/s/AKfycbyNRtd2CmRQQDdnCBuNSz6o6KXZCD6PFkaUqNhFWmvolX3bjySmSDWUchV697ZALp5C/exec', {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: new URLSearchParams(payload)
       });
 
       goToStep(8);
